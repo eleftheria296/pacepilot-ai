@@ -251,7 +251,6 @@ Return only the finished Markdown program, without internal reasoning.
     // Try the primary model, then a fallback if necessary.
     const modelsToTry = [
       "gemini-3.8-flash",
-      "gemini-3.5-flash-lite",
     ];
 
     let plan = "";
