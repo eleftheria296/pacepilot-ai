@@ -210,7 +210,7 @@ When preferred training days are provided:
 - Use actual weekday names from Monday through Sunday.
 - Schedule exactly ${trainingDays} training sessions.
 - Schedule workouts only on selected preferred days.
-- Label every other day Rest Day or Recovery Day.
+- Label remaining days as Rest Day or Recovery Day.
 
 When no preferred days are provided:
 - Label days Day 1 through Day 7 in calendar order.
@@ -223,10 +223,8 @@ effort (Easy, Moderate, or Hard), and concise practical instructions.
 
 For rest or recovery days:
 - Workout: Rest Day or Recovery Day.
-- Duration or Distance: Rest or Optional light activity.
-- Effort: Rest.
-- Explain that recovery is the purpose. Walking or mobility may be
-  optional, not a required workout.
+- Duration or Distance: -
+- Effort: -
 
 Do not omit rest days. Rest days do not count as training sessions.
 Keep the same table structure for every week.
@@ -235,32 +233,17 @@ PROGRESSION AND GOAL COMPLETION
 
 - Adapt progression to the goal, experience, current ability, and
   available time.
-- For beginners, prioritize consistency and easy effort before speed.
 - Run-walk intervals may be appropriate during early weeks.
 - Where appropriate, progressively build toward continuous running.
 - For distance goals such as 5K, 10K, half marathon, or marathon,
   work toward completing the full target distance by the end, if realistic.
-- Do not make run-walk intervals the default final goal when the stated
-  objective is continuous running, unless the runner's ability makes
-  that progression inappropriate.
-- Do not confuse completing a distance with achieving a target pace.
-  Do not invent pace targets.
 - Use a suitable reduced-load week or taper when appropriate.
 - Never increase training load aggressively or guarantee success.
-
-## Progression and Adaptation
-
-Explain how the program develops, how to handle missed sessions, and
-when to repeat a week rather than progress.
 
 ## Recovery and Safety
 
 Give 2–3 concise bullets about recovery, gradual progression, and when
 to stop exercising and seek appropriate medical advice. Do not diagnose.
-
-## Your First Step
-
-Give one clear action for the first scheduled session.
 
 Return only the finished Markdown program, without internal reasoning.
 `;
