@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101a17">
+  <meta name="description" content="Create a personalized running plan with PacePilot AI.">
+  <title>PacePilot AI | Your Running Coach</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/script.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-icon">P</span>
+      <span>PacePilot<span class="brand-ai"> AI</span></span>
+    </a>
+    <span class="status"><span class="status-dot"></span> AI RUNNING COACH</span>
+  </header>
+
+  <main class="layout">
+    <section class="intro">
+      <p class="eyebrow">YOUR NEXT MILE STARTS HERE</p>
+      <h1>A running plan<br>built <span>around you.</span></h1>
+      <p class="intro-text">
+        Tell us where you are and where you want to go.
+        Your AI running coach will create a personalized training plan.
+      </p>
+
+      <div class="feature-row">
+        <div class="feature"><span>01</span><div><strong>Your goal</strong><small>Choose your distance</small></div></div>
+        <div class="feature"><span>02</span><div><strong>Your schedule</strong><small>Train at your pace</small></div></div>
+        <div class="feature"><span>03</span><div><strong>Your plan</strong><small>Generated with AI</small></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">PERSONAL TRAINING</p>
+          <h2>Build your plan</h2>
+        </div>
+        <span class="sparkle">✳</span>
+      </div>
+
+      <form id="plan-form">
+        <label for="goal">What's your goal?</label>
+        <select id="goal" name="goal" required>
+          <option value="General fitness">Run regularly</option>
+          <option value="5K">Complete a 5K</option>
+          <option value="10K">Complete a 10K</option>
+          <option value="Half marathon">Run a half marathon</option>
+          <option value="Marathon">Run a marathon</option>
+        </select>
+
+        <label for="experience">Current running experience</label>
+        <select id="experience" name="experience" required>
+          <option value="Beginner">Beginner — just getting started</option>
+          <option value="Some experience">Some experience — I run occasionally</option>
+          <option value="Regular runner">Regular runner — I run consistently</option>
+        </select>
+
+        <div class="form-row">
+          <div>
+            <label for="days">Training days per week</label>
+            <select id="days" name="daysPerWeek" required>
+              <option value="2">2 days</option>
+              <option value="3" selected>3 days</option>
+              <option value="4">4 days</option>
+              <option value="5">5 days</option>
+            </select>
+          </div>
+          <div>
+            <label for="date">Target date (optional)</label>
+            <input id="date" name="targetDate" type="date">
+          </div>
+        </div>
+
+        <button id="generate-btn" type="submit">
+          Generate my plan <span>→</span>
+        </button>
+        <p class="privacy-note">Your details are sent to the AI service to generate your plan.</p>
+      </form>
+
+      <div id="result" class="result" aria-live="polite" hidden>
+        <div class="result-heading">
+          <div><p class="eyebrow">YOUR PERSONALIZED PLAN</p><h2>Your training plan</h2></div>
+        </div>
+        <div id="plan-content" class="plan-content"></div>
+      </div>
+
+      <p id="error-message" class="error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <footer>
+    <span>PACEPILOT AI</span>
+    <span>Train smart. Progress gradually.</span>
+    <span>AI-generated guidance · Not medical advice</span>
+  </footer>
+</body>
+</html>
