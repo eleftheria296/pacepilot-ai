@@ -206,17 +206,30 @@ Every week must have a Markdown table with these exact columns:
 
 Every table must contain exactly seven rows, one for each day.
 
+
 When preferred training days are provided:
 - Use actual weekday names from Monday through Sunday.
-- Schedule exactly ${trainingDays} training sessions.
-- Schedule workouts only on selected preferred days.
-- Label remaining days as Rest Day or Recovery Day.
+- Schedule exactly ${trainingDays} actual training sessions EVERY week.
+- Schedule workouts only on the selected preferred days.
+- Mark every other day as Rest Day or Recovery Day.
+- Count the scheduled workouts before returning each weekly table.
+- Verify that the workout count equals ${trainingDays} in every week.
 
 When no preferred days are provided:
 - Label days Day 1 through Day 7 in calendar order.
-- Schedule exactly ${trainingDays} training sessions.
-- Include all remaining days as rest or recovery days.
+- Schedule exactly ${trainingDays} actual training sessions EVERY week.
+- Mark all remaining days as Rest Day or Recovery Day.
+- Count the scheduled workouts before returning each weekly table.
+- Verify that the workout count equals ${trainingDays} in every week.
+
+STRICT RULES:
+- Rest Days and Recovery Days do not count as training sessions.
+- A workout is a session only if it contains an actual running or planned cross-training workout.
+- Never omit a requested session or replace it with a rest day.
+- For ${trainingDays} sessions, each week must contain exactly ${trainingDays} workouts and ${7 - trainingDays} rest/recovery days.
 - Space sessions appropriately and avoid consecutive hard workouts.
+- If preferred days are selected, ensure there are enough selected days to schedule all ${trainingDays} sessions.
+
 
 For each training session, provide the workout, duration or distance,
 effort (Easy, Moderate, or Hard), and concise practical instructions.
