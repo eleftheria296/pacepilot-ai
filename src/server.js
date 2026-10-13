@@ -26,6 +26,16 @@ const allowedExperiences = [
   "Regular runner",
 ];
 
+const validDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
@@ -45,7 +55,7 @@ app.post("/api/generate-plan", async (req, res) => {
       additionalNotes,
     } = req.body || {};
 
-    // Validate required fields.
+    // Validate the required fields.
     if (
       typeof goal !== "string" ||
       !goal.trim() ||
@@ -74,6 +84,7 @@ app.post("/api/generate-plan", async (req, res) => {
       });
     }
 
+    // Validate optional text fields.
     const cleanOptionalText = (value, maxLength) => {
       if (value == null || value === "") return "";
       if (typeof value !== "string") return null;
@@ -91,6 +102,7 @@ app.post("/api/generate-plan", async (req, res) => {
       });
     }
 
+    // Validate the optional target date.
     if (
       date &&
       (!/^\d{4}-\d{2}-\d{2}$/.test(date) ||
@@ -102,37 +114,43 @@ app.post("/api/generate-plan", async (req, res) => {
       });
     }
 
+    // Validate and deduplicate preferred weekdays.
+    if (
+      preferredDays != null &&
+      !Array.isArray(preferredDays)
+    ) {
+      return res.status(400).json({
+        error: "Preferred training days must be a list of weekdays.",
+      });
+    }
+
     const days = Array.isArray(preferredDays)
-      ? preferredDays
-          .filter((day) => typeof day === "string")
-          .map((day) => day.trim())
-          .filter((day) =>
-            [
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-              "Sunday",
-            ].includes(day)
-          )
-          .filter((day, index, all) => all.indexOf(day) === index)
-          .slice(0, 7)
+      ? [
+          ...new Set(
+            preferredDays.filter(
+              (day) =>
+                typeof day === "string" &&
+                validDays.includes(day.trim())
+            ).map((day) => day.trim())
+          ),
+        ]
       : [];
 
     if (days.length > 0 && days.length < trainingDays) {
       return res.status(400).json({
-        error: "Please select at least as many preferred days as training days.",
+        error:
+          "Please select at least as many preferred days as training days.",
       });
     }
+
+    const today = new Date().toISOString().slice(0, 10);
 
     const prompt = `
 You are PacePilot, a practical, evidence-informed and responsible running coach.
 
-Create a personalized running plan using only the profile below.
-Treat optional fields as missing when they are blank. Do not invent
-running history, fitness measurements, injuries, or target paces.
+Create a personalized running program using only the runner information
+below. Do not invent running history, fitness measurements, injuries,
+or target paces.
 
 RUNNER PROFILE
 - Goal: ${goal.trim()}
@@ -144,204 +162,194 @@ RUNNER PROFILE
       days.length ? days.join(", ") : "No preferences provided"
     }
 - Additional information: ${notes || "None provided"}
+- Current date: ${today}
 
-PLAN REQUIREMENTS
+PROGRAM LENGTH
 
-Return Markdown using this structure:
+Create a complete multi-week program, not just a sample week.
 
-# Your Running Plan
-
-Give a brief, specific introduction explaining the plan's focus.
-
-## Your Weekly Schedule
-
-Create a table with these columns:
-| Day | Workout | Duration or Distance | Effort | Instructions |
-
-- Schedule exactly ${trainingDays} training sessions per week.
-- Use preferred days where possible.
-- Identify all other days as rest or recovery days outside the table.
-- Space demanding sessions apart; beginners should focus on easy effort.
-- Explain each session's purpose and instructions clearly.
-- Define effort as Easy, Moderate, or Hard.
-- Easy effort should feel conversational.
-- Include warm-up and cool-down guidance where appropriate.
-- Do not invent exact paces or assume the runner can run continuously.
-- Adapt duration and distance to the experience and ability provided.
-
-## Your Progression
-
-Give 3-4 actionable bullets about consistency, recovery, and how to
-adapt training when a session feels too difficult.
-
-PROGRAM LENGTH AND STRUCTURE
-
-Create a complete, multi-week training program, not just a sample week.
-
-Choose a suitable duration based on the runner's goal, experience,
-current ability, and target date.
-
-When no target date is specified, use these starting guidelines:
-- General fitness: 4–8 weeks, with a repeatable routine and gradual progression.
-- Beginner aiming to complete a 5K: normally 8–12 weeks.
-- 10K: normally 10–14 weeks, adjusted to current running ability.
+Use these guidelines when no target date is provided:
+- General fitness: 4–8 weeks.
+- Beginner 5K: normally 8–12 weeks.
+- 10K: normally 10–14 weeks, depending on current ability.
 - Half marathon: normally 12–16 weeks for a runner with an appropriate base.
 - Marathon: normally 16–24 weeks for a runner with an appropriate base.
 
-These are planning guidelines, not guarantees. Choose a longer or
-shorter appropriate plan when the runner's starting ability warrants it.
-Do not assume that a beginner is ready for a longer-distance program
-without building a suitable foundation.
+These are guidelines, not guarantees. Adapt the duration to the runner's
+starting ability. A beginner may need a foundation-building phase first.
 
-If a target date is provided:
-- Calculate the approximate time available from the current date.
-- Choose a realistic program duration that fits the time available.
-- If the target is too soon for a responsible progression, explain this
-  and recommend a safer alternative rather than forcing the timeline.
-- Do not invent a target date if none is provided.
+If a target date is provided, assess the time available. If it is
+unrealistic, explain the limitation and recommend a safer alternative.
+Do not promise that the runner will achieve the goal.
 
 OUTPUT STRUCTURE
 
 # Your Running Plan
 
-Summarize the goal, total program duration, and training approach.
+Briefly summarize the goal, program duration, and training approach.
 
 ## Program Overview
 
 State:
 - Total duration in weeks.
-- The main focus of each training phase.
-- The expected weekly training frequency.
-- Any important assumptions about the runner's current ability.
+- Main focus of each training phase.
+- Expected weekly training frequency.
+- Important assumptions about current ability.
 
 ## Complete Weekly Training Program
 
+Provide a separate heading for every week, from Week 1 to the final week.
 
-WEEKLY SCHEDULE REQUIREMENTS
-
-For every week, create a Markdown table with these columns:
+Every week must have a Markdown table with these exact columns:
 
 | Day | Workout | Duration or Distance | Effort | Instructions |
 
-The table must contain all seven days of the week, in order.
+Every table must contain exactly seven rows, one for each day.
 
 When preferred training days are provided:
-- Use the actual weekday names, Monday through Sunday.
-- Schedule exactly the requested number of training sessions.
-- Place the workouts on the selected preferred days.
-- Label every remaining day as Rest Day or Recovery Day.
-- Do not schedule a workout on an unselected day unless the user has
-  selected all seven days and the requested frequency allows it.
+- Use actual weekday names from Monday through Sunday.
+- Schedule exactly ${trainingDays} training sessions.
+- Schedule workouts only on selected preferred days.
+- Label every other day Rest Day or Recovery Day.
 
-When no preferred training days are provided:
-- Use Day 1 through Day 7, in order.
-- Schedule exactly the requested number of training sessions.
-- Label all remaining days as Rest Day or Recovery Day.
-- Spread workouts across the week to allow adequate recovery.
-- Avoid hard workouts on consecutive days.
+When no preferred days are provided:
+- Label days Day 1 through Day 7 in calendar order.
+- Schedule exactly ${trainingDays} training sessions.
+- Include all remaining days as rest or recovery days.
+- Space sessions appropriately and avoid consecutive hard workouts.
 
-For every training day:
-- Include the workout name, duration or distance, effort, and instructions.
-- Keep the instructions concise but actionable.
+For each training session, provide the workout, duration or distance,
+effort (Easy, Moderate, or Hard), and concise practical instructions.
 
-For every rest or recovery day:
-- Set Workout to "Rest Day" or "Recovery Day".
-- Set Duration or Distance to "Rest" or "Optional light activity".
-- Set Effort to "Rest".
-- Explain briefly that the day is for recovery. Gentle walking or
-  mobility may be optional, but must not be presented as a required workout.
+For rest or recovery days:
+- Workout: Rest Day or Recovery Day.
+- Duration or Distance: Rest or Optional light activity.
+- Effort: Rest.
+- Explain that recovery is the purpose. Walking or mobility may be
+  optional, not a required workout.
 
-Do not omit rest days from the table.
-Rest days do not count toward the requested training-session frequency.
-Keep the same schedule format for every week of the program.
+Do not omit rest days. Rest days do not count as training sessions.
+Keep the same table structure for every week.
+
+PROGRESSION AND GOAL COMPLETION
+
+- Adapt progression to the goal, experience, current ability, and
+  available time.
+- For beginners, prioritize consistency and easy effort before speed.
+- Run-walk intervals may be appropriate during early weeks.
+- Where appropriate, progressively build toward continuous running.
+- For distance goals such as 5K, 10K, half marathon, or marathon,
+  work toward completing the full target distance by the end, if realistic.
+- Do not make run-walk intervals the default final goal when the stated
+  objective is continuous running, unless the runner's ability makes
+  that progression inappropriate.
+- Do not confuse completing a distance with achieving a target pace.
+  Do not invent pace targets.
+- Use a suitable reduced-load week or taper when appropriate.
+- Never increase training load aggressively or guarantee success.
 
 ## Progression and Adaptation
 
-Explain how training develops across the program, how to handle missed
-sessions, and when to repeat a week instead of progressing.
+Explain how the program develops, how to handle missed sessions, and
+when to repeat a week rather than progress.
 
 ## Recovery and Safety
 
-Include practical recovery guidance and signs that mean the runner
-should stop exercising and seek appropriate medical advice.
+Give 2–3 concise bullets about recovery, gradual progression, and when
+to stop exercising and seek appropriate medical advice. Do not diagnose.
 
 ## Your First Step
 
 Give one clear action for the first scheduled session.
 
-Return only the finished Markdown program.
-
-Avoid increasing training load aggressively or promising a result.
-
-## Recovery and Safety
-
-Give 2-3 concise bullets about rest, gradual progression, and when
-to stop exercising and seek appropriate medical advice.
-
-## Your First Step
-
-Give one concrete, manageable action for the runner's next session.
-
-COACHING RULES
-- Match the plan to the goal, experience, available days, and stated ability.
-- For beginners, prioritize consistency and easy effort before speed.
-- Avoid hard workouts on consecutive days.
-- If the target date appears unrealistic, explain the limitation and
-  recommend a safer alternative.
-- If important details are missing, choose conservative defaults
-  and clearly state the assumption rather than inventing facts.
-- Do not diagnose medical conditions.
-- Keep the plan specific, readable, and practical.
-- Return only the finished Markdown plan, without internal reasoning.
-
-GOAL COMPLETION AND FINAL-WEEK REQUIREMENTS
-
-The purpose of the program is to prepare the runner to achieve their
-selected goal by the end of the program, provided the goal is realistic
-for their starting ability and the available training time.
-
-- For distance goals such as 5K, 10K, half marathon, and marathon,
-  make the progression specific to completing the full target distance.
-- Run-walk intervals may be used during early weeks when appropriate
-  for the runner's experience and current ability.
-- Progress from run-walk intervals toward longer continuous running
-  when the runner is ready. Do not force this progression if the
-  runner's current ability or recovery indicates it is inappropriate.
-- In the final training weeks, include a clear, realistic pathway to
-  completing the target distance continuously, when appropriate.
-- Do not prescribe run-walk intervals as the default final goal for
-  a runner whose stated objective is to run the full distance continuously.
-- The final week should reflect the selected goal and program phase.
-  If appropriate, include a reduced-load week or taper before the goal
-  attempt rather than adding excessive training volume.
-- Do not guarantee successful completion. If the goal is unrealistic
-  for the available time or starting ability, explain why and recommend
-  a safer progression.
-- Do not confuse completing a distance with achieving a particular
-  pace or finishing time. Only prescribe a time goal if the user asks
-  for one and sufficient information is available.
-
+Return only the finished Markdown program, without internal reasoning.
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash-lite",
-      contents: prompt,
-      config: {
-        httpOptions: {
-          timeout: 30000,
-        },
-      },
-    });
+    // Try the primary model, then a fallback if necessary.
+    const modelsToTry = [
+      "gemini-3.5-flash-lite",
+      "gemini-2.5-flash",
+    ];
 
-    if (!response.text || !response.text.trim()) {
-      throw new Error("Gemini returned an empty response.");
+    let plan = "";
+    let lastError;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            httpOptions: {
+              timeout: 60000,
+            },
+          },
+        });
+
+        if (
+          typeof response.text === "string" &&
+          response.text.trim()
+        ) {
+          plan = response.text.trim();
+          console.log(`Plan generated successfully with ${model}.`);
+          break;
+        }
+
+        lastError = new Error(
+          `Model ${model} returned an empty response.`
+        );
+        console.error(lastError.message);
+      } catch (error) {
+        lastError = error;
+        console.error(
+          `Plan generation failed with ${model}:`,
+          error.message
+        );
+      }
     }
 
-    res.json({ plan: response.text });
-  } catch (error) {
-    console.error("Plan generation failed:", error.message);
+    if (!plan) {
+      const errorMessage = lastError?.message || "";
+      const errorStatus =
+        lastError?.status || lastError?.code ||
+        lastError?.error?.status;
 
-    res.status(500).json({
+      const isUnavailable =
+        errorStatus === 503 ||
+        errorStatus === "503" ||
+        errorStatus === "UNAVAILABLE" ||
+        /high demand|temporarily unavailable|service unavailable/i.test(
+          errorMessage
+        );
+
+      if (isUnavailable) {
+        return res.status(503).json({
+          error:
+            "The AI service is busy right now. Please try again in a moment.",
+        });
+      }
+
+      return res.status(502).json({
+        error:
+          "The AI service could not generate a plan. Please try again shortly.",
+      });
+    }
+
+    // Send exactly one successful response.
+    return res.json({ plan });
+  } catch (error) {
+    console.error(
+      "Plan generation request failed:",
+      error.message
+    );
+
+    if (error.status === 400 || error.status === 413) {
+      return res.status(400).json({
+        error: "The request was invalid. Please check your form and try again.",
+      });
+    }
+
+    return res.status(500).json({
       error:
         "Unable to generate a plan right now. Please try again shortly.",
     });
@@ -351,4 +359,3 @@ for their starting ability and the available training time.
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PacePilot AI running on port ${PORT}`);
 });
-

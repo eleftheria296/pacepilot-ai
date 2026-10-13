@@ -153,7 +153,10 @@ form.addEventListener("submit", async (event) => {
       );
     }
 
-    const renderedMarkdown = marked.parse(data.plan);
+    const renderedMarkdown = marked.parse(data.plan, {
+      gfm: true,
+      breaks: false,
+    });
 
     // Sanitize generated HTML before inserting it into the page.
     if (typeof DOMPurify === "undefined") {
