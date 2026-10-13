@@ -7,32 +7,74 @@
   <meta name="theme-color" content="#101a17">
   <meta name="description" content="Create a personalized running plan with PacePilot AI.">
   <title>PacePilot AI | Your Running Coach</title>
+
   <link rel="stylesheet" href="/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <script src="/script.js" defer></script>
 </head>
+
 <body>
   <header class="topbar">
-    <a class="brand" href="/">
+    <a class="brand" href="/" aria-label="PacePilot AI home">
       <span class="brand-icon">P</span>
       <span>PacePilot<span class="brand-ai"> AI</span></span>
     </a>
-    <span class="status"><span class="status-dot"></span> AI RUNNING COACH</span>
+
+    <span class="status">
+      <span class="status-dot"></span>
+      AI RUNNING COACH
+    </span>
   </header>
 
   <main class="layout">
     <section class="intro">
       <p class="eyebrow">YOUR NEXT MILE STARTS HERE</p>
+
       <h1>A running plan<br>built <span>around you.</span></h1>
+
       <p class="intro-text">
         Tell us where you are and where you want to go.
-        Your AI running coach will create a personalized training plan.
+        Your AI running coach will create a plan that fits your goals,
+        current ability, and weekly routine.
       </p>
 
       <div class="feature-row">
-        <div class="feature"><span>01</span><div><strong>Your goal</strong><small>Choose your distance</small></div></div>
-        <div class="feature"><span>02</span><div><strong>Your schedule</strong><small>Train at your pace</small></div></div>
-        <div class="feature"><span>03</span><div><strong>Your plan</strong><small>Generated with AI</small></div></div>
+        <div class="feature">
+          <span>01</span>
+          <div>
+            <strong>Your goal</strong>
+            <small>Choose your distance</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span>02</span>
+          <div>
+            <strong>Your routine</strong>
+            <small>Fit training into your week</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span>03</span>
+          <div>
+            <strong>Your plan</strong>
+            <small>Guidance generated with AI</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="coach-note">
+        <span class="coach-note-icon" aria-hidden="true">✳</span>
+        <div>
+          <strong>Progress, not pressure.</strong>
+          <p>
+            Your plan should adapt to your starting point.
+            Consistency and recovery matter more than speed.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -41,57 +83,188 @@
         <div>
           <p class="eyebrow">PERSONAL TRAINING</p>
           <h2>Build your plan</h2>
+          <p class="panel-description">
+            A few details help your coach make a better plan.
+          </p>
         </div>
-        <span class="sparkle">✳</span>
+
+        <span class="sparkle" aria-hidden="true">✳</span>
       </div>
 
       <form id="plan-form">
-        <label for="goal">What's your goal?</label>
-        <select id="goal" name="goal" required>
-          <option value="General fitness">Run regularly</option>
-          <option value="5K">Complete a 5K</option>
-          <option value="10K">Complete a 10K</option>
-          <option value="Half marathon">Run a half marathon</option>
-          <option value="Marathon">Run a marathon</option>
-        </select>
+        <fieldset class="form-section">
+          <legend>01 — Your goal</legend>
 
-        <label for="experience">Current running experience</label>
-        <select id="experience" name="experience" required>
-          <option value="Beginner">Beginner — just getting started</option>
-          <option value="Some experience">Some experience — I run occasionally</option>
-          <option value="Regular runner">Regular runner — I run consistently</option>
-        </select>
+          <label for="goal">What's your goal?</label>
+          <select id="goal" name="goal" required>
+            <option value="General fitness">Run regularly</option>
+            <option value="5K">Complete a 5K</option>
+            <option value="10K">Complete a 10K</option>
+            <option value="Half marathon">Run a half marathon</option>
+            <option value="Marathon">Run a marathon</option>
+          </select>
 
-        <div class="form-row">
-          <div>
-            <label for="days">Training days per week</label>
-            <select id="days" name="daysPerWeek" required>
-              <option value="2">2 days</option>
-              <option value="3" selected>3 days</option>
-              <option value="4">4 days</option>
-              <option value="5">5 days</option>
-            </select>
+          <label for="experience">
+            How would you describe your running?
+          </label>
+          <select id="experience" name="experience" required>
+            <option value="Beginner">Beginner — just getting started</option>
+            <option value="Some experience">Some experience — I run occasionally</option>
+            <option value="Regular runner">Regular runner — I run consistently</option>
+          </select>
+
+          <label for="currentAbility">
+            What can you comfortably do right now?
+            <span class="optional">(optional)</span>
+          </label>
+          <select id="currentAbility" name="currentAbility">
+            <option value="">Choose your current ability</option>
+            <option value="I am starting from scratch or using run-walk intervals">
+              Starting from scratch / run-walk intervals
+            </option>
+            <option value="I can run about 10 to 15 minutes continuously">
+              Run 10–15 minutes continuously
+            </option>
+            <option value="I can run about 20 to 30 minutes continuously">
+              Run 20–30 minutes continuously
+            </option>
+            <option value="I can run 5 km comfortably">
+              Run 5 km comfortably
+            </option>
+            <option value="I can run 10 km or more comfortably">
+              Run 10 km or more comfortably
+            </option>
+          </select>
+        </fieldset>
+
+        <fieldset class="form-section">
+          <legend>02 — Your schedule</legend>
+
+          <div class="form-row">
+            <div>
+              <label for="days">Sessions per week</label>
+              <select id="days" name="daysPerWeek" required>
+                <option value="1">1 day</option>
+                <option value="2">2 days</option>
+                <option value="3" selected>3 days</option>
+                <option value="4">4 days</option>
+                <option value="5">5 days</option>
+                <option value="6">6 days</option>
+                <option value="7">7 days</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="date">
+                Target date <span class="optional">(optional)</span>
+              </label>
+              <input id="date" name="targetDate" type="date">
+            </div>
           </div>
-          <div>
-            <label for="date">Target date (optional)</label>
-            <input id="date" name="targetDate" type="date">
-          </div>
-        </div>
+
+          <fieldset class="day-picker">
+            <legend>
+              Preferred training days
+              <span class="optional">(optional)</span>
+            </legend>
+
+            <p class="field-help">
+              Choose the days that work best for you, up to your selected
+              number of weekly sessions. Leave all days unselected to let
+              your coach choose a schedule.
+            </p>
+
+            <div class="day-options">
+              <label>
+                <input type="checkbox" name="preferredDays" value="Monday">
+                <span>Mon</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Tuesday">
+                <span>Tue</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Wednesday">
+                <span>Wed</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Thursday">
+                <span>Thu</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Friday">
+                <span>Fri</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Saturday">
+                <span>Sat</span>
+              </label>
+              <label>
+                <input type="checkbox" name="preferredDays" value="Sunday">
+                <span>Sun</span>
+              </label>
+            </div>
+
+            <p id="days-hint" class="field-help" aria-live="polite"></p>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="form-section">
+          <legend>03 — Extra context</legend>
+
+          <label for="additionalNotes">
+            Anything else your coach should know?
+            <span class="optional">(optional)</span>
+          </label>
+
+          <textarea
+            id="additionalNotes"
+            name="additionalNotes"
+            rows="3"
+            maxlength="500"
+            placeholder="For example: I prefer outdoor runs, I also strength train, or I need flexible sessions."
+          ></textarea>
+
+          <p class="field-help">
+            Avoid sharing private medical details. Your notes are sent to
+            the AI service to generate your plan.
+          </p>
+        </fieldset>
 
         <button id="generate-btn" type="submit">
-          Generate my plan <span>→</span>
+          <span class="button-label">Generate my plan</span>
+          <span aria-hidden="true">→</span>
         </button>
-        <p class="privacy-note">Your details are sent to the AI service to generate your plan.</p>
+
+        <p class="privacy-note">
+          Your training details are sent to the AI service.
+          Your API key stays on the server.
+        </p>
       </form>
 
-      <div id="result" class="result" aria-live="polite" hidden>
-        <div class="result-heading">
-          <div><p class="eyebrow">YOUR PERSONALIZED PLAN</p><h2>Your training plan</h2></div>
+      <p id="error-message" class="error" role="alert" hidden></p>
+
+      <p id="loading-message" class="loading-message" role="status" hidden>
+        <span class="loading-spinner" aria-hidden="true"></span>
+        Your coach is building your plan…
+      </p>
+    </section>
+
+    <section
+      id="result"
+      class="result"
+      aria-labelledby="result-title"
+      aria-live="off"
+      hidden
+    >
+      <div class="result-heading">
+        <div>
+          <p class="eyebrow">YOUR PERSONALIZED PLAN</p>
+          <h2 id="result-title">Your training plan</h2>
         </div>
-        <div id="plan-content" class="plan-content"></div>
       </div>
 
-      <p id="error-message" class="error" role="alert" hidden></p>
+      <div id="plan-content" class="plan-content"></div>
     </section>
   </main>
 
